@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="木木的树洞：一个陪你慢慢说话的小伙伴。小香菇可以坐一会儿、写封信，再看看窗边的灯。">
+<title>木木的树洞 · 慢慢说，也可以不说</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="./styles.css">
+<script src="./config.js" defer></script>
+<script src="./app.js" defer></script>
+</head>
+<body>
+<div id="mumu-first-meeting" >
+  <main class="mm-world" aria-label="木木的树洞初遇体验">
+    <header class="mm-header"><span>木木的树洞</span><span class="mm-caption">一处可以慢慢说话的地方</span></header>
+    <div class="mm-mode" id="mm-mode" role="status">公开演示 · 不调用 AI</div>
+    <div class="mm-scene" role="img" aria-label="木木在树屋的窗边，一只栗棕色圆菌盖、奶油色身体的小香菇站在树下。这只小香菇就是你。">
+      <div class="mm-orb"></div><div class="mm-distant mm-d1"></div><div class="mm-distant mm-d2"></div><div class="mm-distant mm-d3"></div>
+      <div class="mm-ground"></div>
+      <div class="mm-tree"><div class="mm-trunk"></div><div class="mm-crown mm-c1"></div><div class="mm-crown mm-c2"></div><div class="mm-crown mm-c3"></div><div class="mm-crown mm-c4"></div>
+        <div class="mm-window"><div class="mm-glow"></div><div class="mm-pet"><div class="mm-sprout"></div><div class="mm-body"><span class="mm-eye mm-left"></span><span class="mm-eye mm-right"></span><span class="mm-cheek mm-cl"></span><span class="mm-cheek mm-cr"></span><span class="mm-mouth"></span><span class="mm-hand mm-hl"></span><span class="mm-hand mm-hr"></span></div></div><div class="mm-sill"></div></div>
+        <div class="mm-door"><span></span></div><div class="mm-step"></div>
+      </div>
+      <div class="mm-bench"><span></span></div><div class="mm-stone mm-s1"></div><div class="mm-stone mm-s2"></div><div class="mm-grass mm-g1"></div><div class="mm-grass mm-g2"></div>
+      <div class="mm-writing-mat" aria-hidden="true"></div>
+      <div class="mm-visitor" data-pose="stand" aria-hidden="true">
+        <div class="mm-v-shadow"></div>
+        <div class="mm-v-figure">
+          <div class="mm-v-leg mm-v-leg-left"></div><div class="mm-v-leg mm-v-leg-right"></div>
+          <div class="mm-v-coat"></div><div class="mm-v-arm mm-v-arm-left"></div>
+          <div class="mm-v-head"><span class="mm-v-eye mm-v-eye-left"></span><span class="mm-v-eye mm-v-eye-right"></span><span class="mm-v-blush"></span><span class="mm-v-smile"></span><span class="mm-v-hat"></span></div>
+          <div class="mm-v-paper"><span></span></div>
+          <div class="mm-v-arm mm-v-arm-right"><span class="mm-v-pencil"></span></div>
+        </div>
+        <span class="mm-v-label">你</span>
+      </div>
+    </div>
+    <div class="mm-content" aria-live="polite">
+      <section data-screen="home">
+        <div class="mm-eyebrow">树洞的守信人 · 木木</div>
+        <h2>你好，我住在这里。</h2>
+        <p>你有什么想放下的，可以先放我这儿。<br>想让我回信，就敲敲窗。</p>
+        <div class="mm-actions"><button class="mm-primary cursor-interaction" data-go="write">写点什么 <span aria-hidden="true">↗</span></button><button class="mm-secondary cursor-interaction" data-go="sit">先坐一会儿</button></div>
+        <div class="mm-note">不用想好怎么开头。</div>
+      </section>
+      <section data-screen="write" hidden>
+        <div class="mm-eyebrow">把此刻写在纸上</div>
+        <h2>从想到的那句话开始。</h2>
+        <label class="mm-label" for="mm-letter">此刻想说的话</label>
+        <textarea id="mm-letter" maxlength="2000" placeholder="今天，我……" rows="4"></textarea>
+        <div class="mm-letter-meta"><span id="mm-privacy">演示模式：文字仅在当前页面，不发送到服务器</span><span id="mm-count">0 / 2000</span></div>
+        <label class="mm-choice"><input id="mm-reply" type="checkbox"><span id="mm-reply-label">也想看看木木的示例回信</span></label>
+        <p id="mm-error" class="mm-error" role="alert" hidden></p>
+        <div class="mm-actions"><button id="mm-deliver" class="mm-primary cursor-interaction" disabled>交给木木</button><button class="mm-secondary cursor-interaction" data-go="home">先不写了</button></div>
+      </section>
+      <section data-screen="sit" hidden>
+        <div class="mm-eyebrow">给自己留一点空白</div>
+        <h2>这里也可以什么都不做。</h2>
+        <p>你在树旁的长椅坐下，木木在窗边陪着。<br>你们一起看着树影，谁也没有急着开口。</p>
+        <div class="mm-actions"><button class="mm-primary cursor-interaction" data-go="write">现在想说一点</button><button class="mm-secondary cursor-interaction" data-go="home">回到树下</button></div>
+        <div class="mm-note">没有倒计时，也没有需要完成的事。</div>
+      </section>
+      <section data-screen="received" hidden>
+        <div class="mm-eyebrow">窗边的小灯，为这封信亮着</div>
+        <h2>这封信，先放在这里。</h2>
+        <p id="mm-received-copy">小香菇把信放在树下，木木留了一盏灯。</p>
+        <div id="mm-answer" hidden><span id="mm-answer-label">预先写好的示例 · 非实时回信</span><p id="mm-answer-text"></p></div>
+        <div class="mm-actions"><button class="mm-primary cursor-interaction" data-go="sit">陪木木坐会儿</button><button id="mm-again" class="mm-secondary cursor-interaction">再写一封</button></div>
+        <div class="mm-note">信件不在本应用中保存；刷新或关闭页面后，本页内容会清空。</div>
+      </section>
+    </div>
+    <footer>
+      <p id="mm-footer">公开演示 · 示例回信不根据你写的内容生成</p>
+      <button class="mm-text-button" id="mm-clear">清空本页信件</button>
+      <details><summary>关于这里</summary><p>木木是 AI 陪伴角色，不提供心理诊断或治疗。本版没有信件存储或匿名社区。<br>想自行配置真实回信，请查看项目 README；不要在网页中填写 API Key。</p></details>
+    </footer>
+  </main>
+</div>
+<noscript>木木的互动场景需要启用 JavaScript。</noscript>
+</body>
+</html>

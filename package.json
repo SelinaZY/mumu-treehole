@@ -1,0 +1,14 @@
+{
+  "name": "mumu-treehole",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "木木的树洞：公开互动演示，以及自行配置的本地 AI 回信。",
+  "engines": { "node": ">=22.0.0" },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.mjs",
+    "demo": "node server.mjs --demo",
+    "test": "node --test",
+    "check": "node --check server.mjs && node --check public/app.js"
+  }
+}
