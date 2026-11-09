@@ -5,11 +5,27 @@ import { resolve } from 'node:path';
 
 const publicDir = new URL('./public/', import.meta.url);
 const prompt = await readFile(new URL('./prompts/mumu.txt', import.meta.url), 'utf8');
+const reactionPrompt = await readFile(new URL('./prompts/reaction.txt', import.meta.url), 'utf8');
+const reactionNames = ['quiet', 'bighead', 'sweep', 'steam'];
+const replyFormat = {
+  type: 'json_schema', name: 'mumu_letter', strict: true,
+  schema: {
+    type: 'object', additionalProperties: false,
+    properties: {
+      reply: { type: 'string' },
+      allow_playful: { type: 'boolean' },
+      reaction: { type: 'string', enum: reactionNames },
+    },
+    required: ['reply', 'allow_playful', 'reaction'],
+  },
+};
 const files = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
+  ['/reactions.js', ['reactions.js', 'text/javascript; charset=utf-8']],
+  ['/storage.js', ['storage.js', 'text/javascript; charset=utf-8']],
 ]);
 
 class RequestError extends Error {
@@ -77,8 +93,9 @@ export function createApp({ apiKey = '', model = '', demo = false, fetchImpl = f
             headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
               model,
-              instructions: prompt,
+              instructions: `${prompt}\n\n${reactionPrompt}`,
               input: [{ role: 'user', content: letter }],
+              text: { format: replyFormat },
               max_output_tokens: 2000,
               store: false,
             }),
@@ -86,6 +103,7 @@ export function createApp({ apiKey = '', model = '', demo = false, fetchImpl = f
           });
           if (!upstream.ok) {
             const messages = {
+              400: '当前模型没有接受回信格式，请检查模型是否支持 Structured Outputs。',
               401: 'API 密钥验证失败，请检查本地配置。',
               403: '当前 API 项目无权访问，请检查账号权限与可用地区。',
               404: '没有找到配置的模型，请检查 OPENAI_MODEL。',
@@ -97,13 +115,21 @@ export function createApp({ apiKey = '', model = '', demo = false, fetchImpl = f
           }
           const data = await upstream.json();
           if (data.status !== 'completed') return send(502, { error: '这次回信没有完整生成，请稍后再试。' });
-          const reply = (data.output ?? [])
+          const output = (data.output ?? [])
             .filter((item) => item.type === 'message')
             .flatMap((item) => item.content ?? [])
             .filter((item) => item.type === 'output_text' && typeof item.text === 'string')
             .map((item) => item.text).join('\n').trim();
-          if (!reply) return send(502, { error: '这次没有收到文字回信，请稍后再试。' });
-          send(200, { reply });
+          let result;
+          try { result = JSON.parse(output); }
+          catch { return send(502, { error: '这次没有收到完整回信，请稍后再试。' }); }
+          if (typeof result?.reply !== 'string' || !result.reply.trim() || result.reply.length > 8000) {
+            return send(502, { error: '这次没有收到完整回信，请稍后再试。' });
+          }
+          // Missing, unexpected, or non-playful decisions always stay quiet.
+          const reaction = result.allow_playful === true && reactionNames.includes(result.reaction)
+            ? result.reaction : 'quiet';
+          send(200, { reply: result.reply.trim(), reaction });
         } catch (err) {
           if (err instanceof RequestError) send(err.status, { error: err.message });
           else if (abort.signal.aborted) send(504, { error: '回信等得有点久，请稍后再试。' });

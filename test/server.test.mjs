@@ -21,10 +21,11 @@ async function run(t, options = {}) {
 
 const secret = 'test-only-not-a-real-credential';
 const options = { apiKey: secret, model: 'test-model' };
-const success = (text) => new Response(JSON.stringify({ status: 'completed', output: [
+const rawOutput = (text) => new Response(JSON.stringify({ status: 'completed', output: [
   { type: 'reasoning', summary: [] },
   { type: 'message', content: [{ type: 'output_text', text }] },
 ] }));
+const success = (reply, reaction = 'quiet', allow_playful = false) => rawOutput(JSON.stringify({ reply, reaction, allow_playful }));
 
 test('public demo stays offline even when server credentials exist', async (t) => {
   const { base, post } = await run(t, { ...options, demo: true, fetchImpl: () => { throw new Error('Must not call provider'); } });
@@ -65,6 +66,7 @@ test('missing config and malformed or cross-origin input never reach provider', 
 
 test('real reply path passes approved prompt, disables response storage and parses message after reasoning', async (t) => {
   let calls = 0;
+  const approvedPrompt = await readFile(new URL('../prompts/mumu.txt', import.meta.url), 'utf8');
   const { post } = await run(t, { ...options, fetchImpl: async (url, init) => {
     calls++;
     assert.equal(url, 'https://api.openai.com/v1/responses');
@@ -72,13 +74,16 @@ test('real reply path passes approved prompt, disables response storage and pars
     const payload = JSON.parse(init.body);
     assert.equal(payload.store, false);
     assert.equal(payload.model, 'test-model');
-    assert.match(payload.instructions, /默认不提问/);
+    assert.ok(payload.instructions.startsWith(approvedPrompt));
+    assert.equal(payload.text.format.type, 'json_schema');
+    assert.equal(payload.text.format.strict, true);
+    assert.equal(payload.text.format.schema.additionalProperties, false);
     assert.deepEqual(payload.input, [{ role: 'user', content: '今天看到一朵小花。' }]);
     return success('小小的一朵，也让今天有了点颜色。');
   } });
   const response = await post({ letter: ' 今天看到一朵小花。 ' });
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), { reply: '小小的一朵，也让今天有了点颜色。' });
+  assert.deepEqual(await response.json(), { reply: '小小的一朵，也让今天有了点颜色。', reaction: 'quiet' });
   assert.equal(calls, 1);
 });
 
@@ -87,6 +92,11 @@ test('provider errors and incomplete responses are not presented as successful l
     new Response(`private-provider-error-${secret}`, { status: 401 }),
     new Response(JSON.stringify({ status: 'incomplete', output: [] })),
     success(''),
+    rawOutput('plain text instead of the requested JSON'),
+    rawOutput('{"reaction":"steam"}'),
+    rawOutput('{"reply":42}'),
+    rawOutput(JSON.stringify({ reply: 'a'.repeat(8001) })),
+    new Response(JSON.stringify({ status: 'completed', output: [{ type: 'message', content: [{ type: 'refusal', refusal: 'not a reply' }] }] })),
   ]) {
     const { post } = await run(t, { ...options, fetchImpl: async () => upstream });
     const response = await post({ letter: '你好' });
@@ -94,6 +104,23 @@ test('provider errors and incomplete responses are not presented as successful l
     const text = await response.text();
     assert.ok(!text.includes(secret));
     assert.ok(!text.includes('private-provider-error'));
+  }
+});
+
+test('only explicit playful decisions may animate; other decisions retain the reply and stay quiet', async (t) => {
+  for (const [result, expected] of [
+    [{ reply: '好烦。', reaction: 'bighead', allow_playful: true }, 'bighead'],
+    [{ reply: '好烦。', reaction: 'sweep', allow_playful: true }, 'sweep'],
+    [{ reply: '好烦。', reaction: 'steam', allow_playful: true }, 'steam'],
+    [{ reply: '我听着。', reaction: 'steam', allow_playful: false }, 'quiet'],
+    [{ reply: '我听着。', reaction: 'steam', allow_playful: 'true' }, 'quiet'],
+    [{ reply: '我听着。', reaction: 'invented-animation', allow_playful: true }, 'quiet'],
+    [{ reply: '我听着。' }, 'quiet'],
+  ]) {
+    const { post } = await run(t, { ...options, fetchImpl: async () => rawOutput(JSON.stringify(result)) });
+    const response = await post({ letter: '一封测试信' });
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { reply: result.reply, reaction: expected });
   }
 });
 

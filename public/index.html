@@ -9,23 +9,33 @@
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="./styles.css">
 <script src="./config.js" defer></script>
+<script src="./reactions.js" defer></script>
+<script src="./storage.js" defer></script>
 <script src="./app.js" defer></script>
 </head>
 <body>
 <div id="mumu-first-meeting" >
-  <main class="mm-world" aria-label="木木的树洞初遇体验">
+  <main class="mm-world" data-state="write" aria-label="木木的树洞初遇体验">
     <header class="mm-header"><span>木木的树洞</span><span class="mm-caption">一处可以慢慢说话的地方</span></header>
     <div class="mm-mode" id="mm-mode" role="status">公开演示 · 不调用 AI</div>
-    <div class="mm-scene" role="img" aria-label="木木在树屋的窗边，一只栗棕色圆菌盖、奶油色身体的小香菇站在树下。这只小香菇就是你。">
+    <div class="mm-scene" role="group" aria-label="木木在树屋的窗边，一只栗棕色圆菌盖、奶油色身体的小香菇站在树下。这只小香菇就是你。">
       <div class="mm-orb"></div><div class="mm-distant mm-d1"></div><div class="mm-distant mm-d2"></div><div class="mm-distant mm-d3"></div>
       <div class="mm-ground"></div>
+      <svg class="mm-bird-branch" viewBox="0 0 140 64" preserveAspectRatio="none" aria-hidden="true">
+        <path class="mm-branch-wood" d="M0 51C24 50 35 28 65 27C94 25 112 32 138 16C116 38 94 32 66 33C39 34 29 60 0 64Z"/>
+        <path class="mm-branch-twig" d="M48 32Q56 24 59 11M112 29Q122 26 126 12"/>
+        <path class="mm-branch-leaf" d="M59 17Q43 15 48 4Q61 4 59 17Z"/>
+        <path class="mm-branch-leaf mm-leaf-light" d="M60 12Q61 0 72 2Q73 13 60 12Z"/>
+        <path class="mm-branch-leaf mm-leaf-light" d="M127 15Q128 5 138 6Q139 17 127 15Z"/>
+      </svg>
       <div class="mm-tree"><div class="mm-trunk"></div><div class="mm-crown mm-c1"></div><div class="mm-crown mm-c2"></div><div class="mm-crown mm-c3"></div><div class="mm-crown mm-c4"></div>
-        <div class="mm-window"><div class="mm-glow"></div><div class="mm-pet"><div class="mm-sprout"></div><div class="mm-body"><span class="mm-eye mm-left"></span><span class="mm-eye mm-right"></span><span class="mm-cheek mm-cl"></span><span class="mm-cheek mm-cr"></span><span class="mm-mouth"></span><span class="mm-hand mm-hl"></span><span class="mm-hand mm-hr"></span></div></div><div class="mm-sill"></div></div>
+        <div class="mm-window"><div class="mm-glow"></div><div class="mm-pet"><div class="mm-sprout"></div><div class="mm-body"><span class="mm-eye mm-left"></span><span class="mm-eye mm-right"></span><span class="mm-cheek mm-cl"></span><span class="mm-cheek mm-cr"></span><span class="mm-mouth"></span><span class="mm-hand mm-hl"></span><span class="mm-hand mm-hr"></span></div><div class="mm-steam" aria-hidden="true"><i></i><i></i><i></i></div><div class="mm-fan" aria-hidden="true"></div><div class="mm-broom" aria-hidden="true"><span></span></div></div><div class="mm-sill"></div></div>
         <div class="mm-door"><span></span></div><div class="mm-step"></div>
       </div>
       <div class="mm-bench"><span></span></div><div class="mm-stone mm-s1"></div><div class="mm-stone mm-s2"></div><div class="mm-grass mm-g1"></div><div class="mm-grass mm-g2"></div>
       <div class="mm-writing-mat" aria-hidden="true"></div>
-      <div class="mm-visitor" data-pose="stand" aria-hidden="true">
+      <div class="mm-tangle" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="mm-visitor" data-pose="write" aria-hidden="true">
         <div class="mm-v-shadow"></div>
         <div class="mm-v-figure">
           <div class="mm-v-leg mm-v-leg-left"></div><div class="mm-v-leg mm-v-leg-right"></div>
@@ -36,45 +46,93 @@
         </div>
         <span class="mm-v-label">你</span>
       </div>
+      <div class="mm-reaction-bubble" aria-hidden="true"></div>
+      <button type="button" id="mm-yanlai" class="mm-yanlai" aria-label="燕来，看看旧信" aria-haspopup="dialog" aria-controls="mm-letterbox">
+        <svg class="mm-bird" viewBox="0 0 100 82" aria-hidden="true"><defs><g id="mm-swallow"><path d="M66 45 94 35 83 54 96 67 67 60Z" fill="#405a65"/><path d="M24 33C22 11 57 7 68 30c10 19 1 39-22 39C25 69 13 52 24 33Z" fill="#405a65"/><path d="M28 39C20 53 31 67 47 67c12 0 20-7 21-17-17 6-27-1-40-11Z" fill="#f0e5cc"/><path d="M27 39q7-7 17 3l-9 7Z" fill="#bb8471"/><path class="mm-bird-wing" d="M47 34q29-5 23 24-15 1-23-24Z" fill="#607b83"/><path d="m24 30-13 5 13 5Z" fill="#bf9a65"/><circle cx="33" cy="28" r="3" fill="#182d34"/><circle cx="34" cy="27" r=".9" fill="#fffdf6"/><path d="m40 68-2 6m14-6 2 6" stroke="#987c5b" stroke-width="2.5" stroke-linecap="round"/></g></defs><use href="#mm-swallow"/></svg>
+        <span class="mm-yanlai-name">燕来</span><span class="mm-place-label">看看旧信</span>
+      </button>
+      <button type="button" class="mm-scene-action mm-paper-action" data-go="write" aria-label="展开信纸，写点什么" aria-controls="mm-composer" aria-expanded="false"><span class="mm-paper-prop" aria-hidden="true">≋</span><span class="mm-place-label" id="mm-paper-label">写点什么</span></button>
+      <button type="button" class="mm-scene-action mm-bench-action" data-go="sit" aria-label="去长椅坐一会儿" aria-pressed="false"><span class="mm-place-label">坐一会儿</span></button>
     </div>
+    <aside class="mm-reaction-preview" aria-label="木木的反应预览">
+      <div class="mm-reaction-heading">看看木木的小反应 <span>动作小样 · 点一下播放</span></div>
+      <div class="mm-reaction-buttons">
+        <button type="button" data-reaction-play="bighead" aria-pressed="false">头都大了</button>
+        <button type="button" data-reaction-play="sweep" aria-pressed="false">扫走糟心事</button>
+        <button type="button" data-reaction-play="steam" aria-pressed="false">气得冒烟</button>
+        <button type="button" data-reaction-play="quiet" aria-pressed="false">安静陪着</button>
+      </div>
+      <p id="mm-reaction-status" role="status">点一下可以预览；也可以写封信，看看木木的反应。</p>
+    </aside>
+    <p id="mm-motion-announcement" class="mm-sr-only" role="status"></p>
     <div class="mm-content" aria-live="polite">
-      <section data-screen="home">
+      <section data-screen="home" hidden>
         <div class="mm-eyebrow">树洞的守信人 · 木木</div>
         <h2>你好，我住在这里。</h2>
-        <p>你有什么想放下的，可以先放我这儿。<br>想让我回信，就敲敲窗。</p>
-        <div class="mm-actions"><button class="mm-primary cursor-interaction" data-go="write">写点什么 <span aria-hidden="true">↗</span></button><button class="mm-secondary cursor-interaction" data-go="sit">先坐一会儿</button></div>
-        <div class="mm-note">不用想好怎么开头。</div>
+        <p>信纸放在树下，长椅也空着。<br>想说就写，不想说就陪我坐坐。</p>
       </section>
-      <section data-screen="write" hidden>
-        <div class="mm-eyebrow">把此刻写在纸上</div>
-        <h2>从想到的那句话开始。</h2>
+      <section data-screen="write" id="mm-composer" class="mm-composer">
+        <button type="button" class="mm-fold-paper" data-go="sit" aria-label="收起信纸，去坐一会儿">收起 <span aria-hidden="true">⌄</span></button>
+        <div class="mm-eyebrow">给窗边的木木</div>
+        <h2>想到哪儿，就写到哪儿。</h2>
+        <div id="mm-demo-samples" class="mm-demo-samples">
+          <span>试试一封示例来信</span>
+          <div><button type="button" data-sample="bighead">事情太多</button><button type="button" data-sample="sweep">倒霉一天</button><button type="button" data-sample="steam">被迫加班</button><button type="button" data-sample="quiet">想安静待着</button></div>
+          <small>示例搭配预写回信和动作，不调用 AI。</small>
+        </div>
         <label class="mm-label" for="mm-letter">此刻想说的话</label>
         <textarea id="mm-letter" maxlength="2000" placeholder="今天，我……" rows="4"></textarea>
-        <div class="mm-letter-meta"><span id="mm-privacy">演示模式：文字仅在当前页面，不发送到服务器</span><span id="mm-count">0 / 2000</span></div>
+        <div class="mm-letter-meta"><span id="mm-privacy">演示模式：文字只存在此浏览器，不发送到服务器</span><span id="mm-count">0 / 2000</span></div>
         <label class="mm-choice"><input id="mm-reply" type="checkbox"><span id="mm-reply-label">也想看看木木的示例回信</span></label>
         <p id="mm-error" class="mm-error" role="alert" hidden></p>
-        <div class="mm-actions"><button id="mm-deliver" class="mm-primary cursor-interaction" disabled>交给木木</button><button class="mm-secondary cursor-interaction" data-go="home">先不写了</button></div>
+        <div class="mm-actions"><button id="mm-deliver" class="mm-primary cursor-interaction" disabled>交给木木</button></div>
+        <div class="mm-note" id="mm-draft-status" role="status">草稿自动保存在此浏览器。</div>
       </section>
       <section data-screen="sit" hidden>
-        <div class="mm-eyebrow">给自己留一点空白</div>
-        <h2>这里也可以什么都不做。</h2>
-        <p>你在树旁的长椅坐下，木木在窗边陪着。<br>你们一起看着树影，谁也没有急着开口。</p>
-        <div class="mm-actions"><button class="mm-primary cursor-interaction" data-go="write">现在想说一点</button><button class="mm-secondary cursor-interaction" data-go="home">回到树下</button></div>
-        <div class="mm-note">没有倒计时，也没有需要完成的事。</div>
+        <div class="mm-eyebrow">木木往旁边挪了挪叶子</div>
+        <h2>嗯，陪你坐会儿。</h2>
+        <p id="mm-sit-note">想说话的时候，信纸就在旁边。</p>
+      </section>
+      <section data-screen="waiting" hidden>
+        <div class="mm-eyebrow">信已经交到木木手里</div>
+        <h2>木木正在读信。</h2>
+        <p>小香菇在窗边等一会儿。</p>
+        <div class="mm-actions"><button id="mm-cancel" class="mm-secondary" type="button">先收回来</button></div>
       </section>
       <section data-screen="received" hidden>
         <div class="mm-eyebrow">窗边的小灯，为这封信亮着</div>
         <h2>这封信，先放在这里。</h2>
         <p id="mm-received-copy">小香菇把信放在树下，木木留了一盏灯。</p>
+        <div id="mm-envelope" hidden><button id="mm-open-reply" class="mm-primary" type="button">打开木木的回信</button><p>想先读信，随时可以打开。</p></div>
         <div id="mm-answer" hidden><span id="mm-answer-label">预先写好的示例 · 非实时回信</span><p id="mm-answer-text"></p></div>
         <div class="mm-actions"><button class="mm-primary cursor-interaction" data-go="sit">陪木木坐会儿</button><button id="mm-again" class="mm-secondary cursor-interaction">再写一封</button></div>
-        <div class="mm-note">信件不在本应用中保存；刷新或关闭页面后，本页内容会清空。</div>
+        <div class="mm-note" id="mm-saved-note">燕来把信收好了，点树枝上的燕来就能回看。</div>
       </section>
     </div>
+    <p id="mm-storage-error" class="mm-storage-error" role="alert" hidden></p>
+    <dialog class="mm-letterbox" id="mm-letterbox" aria-labelledby="mm-letterbox-title">
+      <div class="mm-letterbox-header">
+        <div class="mm-bird-delivery" aria-hidden="true"><svg viewBox="0 0 100 82"><use href="#mm-swallow"/></svg><span class="mm-carried-letter"></span></div>
+        <div><div class="mm-eyebrow">燕来替你收着</div><h2 id="mm-letterbox-title">以前的信</h2></div>
+        <button type="button" class="mm-close-history" id="mm-close-history" aria-label="合上旧信，回到树下" autofocus>×</button>
+      </div>
+      <p class="mm-letterbox-intro">想看哪一封，就拆开看看。<span id="mm-history-count">0 封</span></p>
+      <p id="mm-history-error" class="mm-storage-error" role="alert" hidden></p>
+      <div id="mm-history-list"></div>
+      <div class="mm-letterbox-tools">
+        <details><summary>存放说明</summary><p class="mm-history-privacy">只保存在当前浏览器，不跨设备同步。清除浏览器数据会丢失；使用同一浏览器的人也能看到。历史不会自动发给 AI。</p></details>
+        <details id="mm-history-manage"><summary>整理信件</summary><button class="mm-text-button" type="button" id="mm-clear-history">清空全部信件和草稿</button></details>
+      </div>
+      <div id="mm-delete-confirm" class="mm-delete-confirm" hidden>
+        <p id="mm-delete-message"></p>
+        <button type="button" class="mm-secondary" id="mm-keep">留下</button>
+        <button type="button" class="mm-secondary" id="mm-confirm-delete">确认删除</button>
+      </div>
+    </dialog>
     <footer>
       <p id="mm-footer">公开演示 · 示例回信不根据你写的内容生成</p>
-      <button class="mm-text-button" id="mm-clear">清空本页信件</button>
-      <details><summary>关于这里</summary><p>木木是 AI 陪伴角色，不提供心理诊断或治疗。本版没有信件存储或匿名社区。<br>想自行配置真实回信，请查看项目 README；不要在网页中填写 API Key。</p></details>
+      <button class="mm-text-button" id="mm-clear">清空当前草稿</button>
+      <details><summary>关于这里</summary><p>木木是 AI 陪伴角色，不提供心理诊断或治疗。草稿、信和回信保存在此浏览器，服务器不保存信件；本版没有匿名社区。<br>想自行配置真实回信，请查看项目 README；不要在网页中填写 API Key。</p></details>
     </footer>
   </main>
 </div>

@@ -141,3 +141,204 @@ button:disabled { cursor:wait; }
 #mumu-first-meeting details p { text-align:left; padding:8px 16px; }
 #mumu-first-meeting .mm-content h2 { outline:none; }
 @media(max-width:420px) { body { padding:0; } #mumu-first-meeting { padding:0; } #mumu-first-meeting .mm-world { border-radius:0; min-height:100dvh; } #mumu-first-meeting .mm-mode { margin-left:22px; } }
+
+/* One-shot, locally previewed reactions. The tree and characters keep their places. */
+#mumu-first-meeting .mm-reaction-preview{padding:18px 30px 16px;border-bottom:1px solid var(--mm-line);}
+#mumu-first-meeting .mm-reaction-heading{display:flex;flex-wrap:wrap;gap:5px 12px;align-items:baseline;font-size:13px;color:var(--mm-text);}
+#mumu-first-meeting .mm-reaction-heading span{font-size:11px;color:var(--mm-sub);}
+#mumu-first-meeting .mm-reaction-buttons{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;}
+#mumu-first-meeting .mm-reaction-buttons button{background:var(--mm-paper);color:var(--mm-text);border-color:var(--mm-line);padding:8px 14px;font-size:12px;}
+#mumu-first-meeting .mm-reaction-buttons button[aria-pressed="true"]{background:var(--mm-button);color:var(--mm-button-text);border-color:var(--mm-button);}
+#mumu-first-meeting #mm-reaction-status{font-size:11px;line-height:1.7;min-height:38px;margin-top:10px;}
+#mumu-first-meeting .mm-reaction-bubble{position:absolute;left:50%;top:39px;transform:translateX(-50%);max-width:calc(100% - 32px);width:max-content;padding:9px 16px;border-radius:16px;background:var(--mm-paper);color:var(--mm-text);font-size:13px;box-shadow:0 3px 12px #26362512;z-index:8;opacity:0;pointer-events:none;}
+#mumu-first-meeting .mm-reaction-bubble:after{content:"";position:absolute;left:50%;bottom:-6px;border:7px solid transparent;border-top-color:var(--mm-paper);border-bottom:0;}
+#mumu-first-meeting [data-reaction] .mm-reaction-bubble{opacity:1;}
+#mumu-first-meeting [data-reaction] .mm-tree{z-index:6;}
+#mumu-first-meeting [data-reaction] .mm-pet{z-index:4;}
+#mumu-first-meeting [data-reaction] .mm-mouth{height:1px;border-radius:0;}
+#mumu-first-meeting [data-reaction="bighead"] .mm-pet{animation:mm-head-full 3.6s ease-in-out both;}
+#mumu-first-meeting [data-reaction="bighead"] .mm-hl{animation:mm-hold-left 3.6s ease-in-out both;}
+#mumu-first-meeting [data-reaction="bighead"] .mm-hr{animation:mm-hold-right 3.6s ease-in-out both;}
+#mumu-first-meeting [data-reaction="bighead"] .mm-eye{height:3px;}
+@keyframes mm-head-full{
+  0%,12%,100%{transform:scale(1);}
+  24%{transform:scale(2.3,2.05);}
+  32%,74%{transform:scale(2.05);}
+  82%{transform:scale(2.1,1.98);}
+  94%{transform:scale(.93,1.06);}
+}
+@keyframes mm-hold-left{0%,12%,100%{transform:none;}25%,82%{transform:translate(-1px,-17px) rotate(-55deg);}}
+@keyframes mm-hold-right{0%,12%,100%{transform:none;}25%,82%{transform:translate(1px,-17px) rotate(55deg);}}
+/* The oversized broom pivots at Mumu's hand; the tangle is swept off to the left. */
+#mumu-first-meeting .mm-broom{position:absolute;left:3px;top:-42px;width:5px;height:96px;border-radius:3px;background:#9a7752;transform-origin:50% 72%;transform:rotate(-24deg);opacity:0;z-index:5;}
+#mumu-first-meeting .mm-broom span{position:absolute;left:-15px;bottom:-21px;width:35px;height:34px;clip-path:polygon(23% 0,77% 0,100% 100%,0 100%);background:repeating-linear-gradient(90deg,#c9a25f 0 3px,#e3c282 3px 7px);border-top:5px solid #8e7551;border-radius:0 0 5px 5px;}
+#mumu-first-meeting .mm-tangle{position:absolute;left:calc(50% - 93px);bottom:38px;width:29px;height:25px;border:3px solid light-dark(#5f6255,#adb7a5);border-radius:44% 62% 38% 57%;transform:rotate(-20deg);opacity:0;z-index:7;}
+#mumu-first-meeting .mm-tangle:before,#mumu-first-meeting .mm-tangle:after,#mumu-first-meeting .mm-tangle i{content:"";position:absolute;inset:-4px 3px;border:2px solid light-dark(#5f6255,#adb7a5);border-radius:46% 38% 55% 37%;transform:rotate(65deg);}
+#mumu-first-meeting .mm-tangle:after{transform:rotate(140deg);inset:1px -5px;}
+#mumu-first-meeting .mm-tangle i:nth-child(2){transform:rotate(20deg);inset:4px -3px;}
+#mumu-first-meeting .mm-tangle i:nth-child(3){transform:rotate(-60deg);inset:-7px 6px;}
+#mumu-first-meeting [data-reaction="sweep"] .mm-pet{animation:mm-sweep-trip 4.3s ease-in-out both;}
+#mumu-first-meeting [data-reaction="sweep"] .mm-broom{animation:mm-broom-swish 4.3s ease-in-out both;}
+#mumu-first-meeting [data-reaction="sweep"] .mm-tangle{animation:mm-tangle-away 4.3s ease-in-out both;}
+#mumu-first-meeting [data-reaction="sweep"] .mm-hl{transform:translate(-4px,-9px) rotate(-30deg);}
+@keyframes mm-sweep-trip{
+  0%,8%,100%{transform:translate(0,0) scale(1);}
+  25%,44%{transform:translate(-40px,115px) scale(1.2);}
+  54%{transform:translate(-47px,115px) rotate(-15deg) scale(1.2);}
+  64%{transform:translate(-38px,115px) rotate(8deg) scale(1.2);}
+  72%,82%{transform:translate(-40px,115px) scale(1.2);}
+}
+@keyframes mm-broom-swish{
+  0%,18%,90%,100%{opacity:0;transform:rotate(-24deg) scale(.4);}
+  29%,37%{opacity:1;transform:rotate(-24deg) scale(1);}
+  44%{opacity:1;transform:rotate(-38deg);}
+  54%,68%{opacity:1;transform:rotate(48deg);}
+  78%{opacity:1;transform:rotate(-10deg);}
+}
+@keyframes mm-tangle-away{
+  0%{opacity:0;transform:translateY(-8px) rotate(-20deg);}
+  12%,44%{opacity:1;transform:translateY(0) rotate(-20deg);}
+  51%{opacity:1;transform:translate(-20px,-5px) rotate(-80deg);}
+  64%{opacity:0;transform:translate(-145px,-60px) rotate(-310deg) scale(.6);}
+  100%{opacity:0;transform:translate(-145px,-60px) scale(.6);}
+}
+/* Warm cheeks, small clouds, and a fan that cannot quite keep up. */
+#mumu-first-meeting .mm-steam{position:absolute;left:0;top:-21px;width:49px;height:25px;pointer-events:none;}
+#mumu-first-meeting .mm-steam i{position:absolute;bottom:0;left:2px;width:16px;height:13px;border-radius:50%;background:light-dark(#f4efe2,#d6d9ce);box-shadow:6px -4px 0 light-dark(#f4efe2,#d6d9ce);opacity:0;}
+#mumu-first-meeting .mm-steam i:nth-child(2){left:21px;}
+#mumu-first-meeting .mm-steam i:nth-child(3){left:36px;}
+#mumu-first-meeting .mm-fan{position:absolute;right:-18px;bottom:8px;width:27px;height:27px;border-radius:50% 50% 10% 10%;clip-path:polygon(0 0,100% 0,100% 55%,57% 83%,57% 100%,43% 100%,43% 83%,0 55%);background:repeating-conic-gradient(from -65deg at 50% 80%,#8da884 0deg 16deg,#b8c9a0 16deg 20deg);transform-origin:50% 100%;opacity:0;z-index:5;}
+#mumu-first-meeting [data-reaction="steam"] .mm-body{animation:mm-red-face 4s ease-in-out both;}
+#mumu-first-meeting [data-reaction="steam"] .mm-pet{animation:mm-steam-shiver 4s ease-in-out both;}
+#mumu-first-meeting [data-reaction="steam"] .mm-steam i{animation:mm-puff 1.1s ease-out .8s 2;}
+#mumu-first-meeting [data-reaction="steam"] .mm-steam i:nth-child(2){animation-delay:1.1s;}
+#mumu-first-meeting [data-reaction="steam"] .mm-steam i:nth-child(3){animation-delay:1.4s;}
+#mumu-first-meeting [data-reaction="steam"] .mm-fan{animation:mm-fan-flutter 4s ease-in-out both;}
+#mumu-first-meeting [data-reaction="steam"] .mm-hr{transform:translate(4px,-5px);}
+@keyframes mm-red-face{0%,100%{background:#e7d8b6;}25%,78%{background:#d99679;}50%{background:#d78266;}}
+@keyframes mm-steam-shiver{0%,20%,40%,60%,80%,100%{transform:rotate(0);}30%,50%,70%{transform:rotate(-3deg);}35%,55%,75%{transform:rotate(3deg);}}
+@keyframes mm-puff{0%{opacity:0;transform:translateY(3px) scale(.4);}20%{opacity:.85;}100%{opacity:0;transform:translate(-5px,-36px) scale(1.6);}}
+@keyframes mm-fan-flutter{
+  0%,25%,100%{opacity:0;transform:rotate(-30deg) scale(.4);}
+  35%,45%,55%,65%,75%,85%{opacity:1;transform:rotate(-20deg);}
+  40%,50%,60%,70%,80%{opacity:1;transform:rotate(35deg);}
+  92%{opacity:0;transform:rotate(-20deg);}
+}
+#mumu-first-meeting [data-reaction="quiet"] .mm-eye{height:2px;top:20px;}
+#mumu-first-meeting [data-reaction="quiet"] .mm-glow{opacity:1;}
+@media(max-width:420px){#mumu-first-meeting .mm-reaction-preview{padding:16px 22px 12px;}#mumu-first-meeting .mm-reaction-buttons{gap:6px;}#mumu-first-meeting .mm-reaction-buttons button{padding:8px 11px;}#mumu-first-meeting .mm-reaction-bubble{top:30px;}}
+@media(prefers-reduced-motion:reduce){
+  #mumu-first-meeting [data-reaction="bighead"] .mm-pet{transform:scale(1.8);}
+  #mumu-first-meeting [data-reaction="bighead"] .mm-hl{transform:translate(-1px,-17px) rotate(-55deg);}
+  #mumu-first-meeting [data-reaction="bighead"] .mm-hr{transform:translate(1px,-17px) rotate(55deg);}
+  #mumu-first-meeting [data-reaction="sweep"] .mm-pet{transform:translate(-40px,115px) scale(1.2);}
+  #mumu-first-meeting [data-reaction="sweep"] .mm-broom{opacity:1;transform:rotate(-24deg);}
+  #mumu-first-meeting [data-reaction="sweep"] .mm-tangle{opacity:1;}
+  #mumu-first-meeting [data-reaction="steam"] .mm-body{background:#d99679;}
+  #mumu-first-meeting [data-reaction="steam"] .mm-fan{opacity:1;}
+  #mumu-first-meeting [data-reaction="steam"] .mm-steam i{opacity:.8;}
+}
+
+/* Receiving a letter: walk to the window, then settle on the bench. */
+#mumu-first-meeting .mm-world[data-state="waiting"] .mm-visitor{transform:translateX(0);bottom:23px;}
+#mumu-first-meeting .mm-world[data-state="received"][data-has-reply="true"] .mm-visitor{transform:translateX(var(--mm-seat-x));bottom:50px;}
+#mumu-first-meeting .mm-world[data-state="waiting"] .mm-glow{opacity:1;}
+#mumu-first-meeting .mm-reaction-bubble:empty{display:none;}
+#mumu-first-meeting .mm-world[data-mode="live"] .mm-reaction-preview{display:none;}
+#mumu-first-meeting #mm-envelope{margin-top:22px;}
+#mumu-first-meeting #mm-envelope p{font-size:11px;margin-top:9px;}
+#mumu-first-meeting .mm-demo-samples{margin:16px 0;text-align:left;}
+#mumu-first-meeting .mm-demo-samples>span{font-size:12px;color:var(--mm-sub);}
+#mumu-first-meeting .mm-demo-samples>div{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;}
+#mumu-first-meeting .mm-demo-samples button{padding:8px 12px;background:var(--mm-paper);color:var(--mm-text);border-color:var(--mm-line);font-size:12px;}
+#mumu-first-meeting .mm-demo-samples small{font-size:11px;color:var(--mm-sub);}
+#mumu-first-meeting .mm-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;}
+
+/* Places in the scene are the controls; the letter unfolds below them. */
+#mumu-first-meeting .mm-content{min-height:190px;}
+#mumu-first-meeting .mm-scene-action{position:absolute;z-index:8;border:0;border-radius:12px;padding:0;background:transparent;color:var(--mm-text);cursor:pointer;}
+#mumu-first-meeting .mm-scene-action:hover:not(:disabled){transform:none;}
+#mumu-first-meeting .mm-scene-action:focus-visible{outline:2px solid var(--mm-button);outline-offset:3px;}
+#mumu-first-meeting .mm-place-label{position:absolute;bottom:0;left:50%;transform:translateX(-50%);white-space:nowrap;padding:5px 10px;border:1px solid var(--mm-line);border-radius:18px;background:var(--mm-paper);font-size:12px;box-shadow:0 3px 10px #263e2410;transition:background .2s,box-shadow .2s;}
+#mumu-first-meeting .mm-scene-action:hover .mm-place-label,#mumu-first-meeting .mm-scene-action:focus-visible .mm-place-label{background:var(--mm-button);color:var(--mm-button-text);box-shadow:0 3px 12px #263e2420;}
+#mumu-first-meeting .mm-bench-action{left:calc(50% + 76px);bottom:8px;width:100px;height:86px;}
+#mumu-first-meeting .mm-paper-action{left:calc(50% - 113px);bottom:7px;width:94px;height:62px;}
+#mumu-first-meeting .mm-paper-prop{position:absolute;top:0;left:33px;width:32px;height:28px;background:var(--mm-paper);border:1px solid var(--mm-line);border-radius:2px;color:var(--mm-sub);font-size:25px;line-height:22px;transform:rotate(-12deg);box-shadow:2px 3px 0 #36482e17;transition:transform .25s;}
+#mumu-first-meeting .mm-paper-action:hover .mm-paper-prop{transform:rotate(-3deg) translateY(-3px);}
+#mumu-first-meeting .mm-world[data-state="write"] .mm-paper-prop{opacity:0;}
+#mumu-first-meeting .mm-world[data-state="sit"] .mm-bench-action .mm-place-label{background:var(--mm-bg);color:var(--mm-sub);border-color:transparent;box-shadow:none;}
+#mumu-first-meeting .mm-composer{position:relative;text-align:left;padding:26px 24px 20px;background:var(--mm-paper);border:1px solid var(--mm-line);border-radius:5px 5px 18px 18px;box-shadow:0 8px 24px #263e2408;transform-origin:top center;animation:mm-paper-open .35s ease-out both;}
+#mumu-first-meeting .mm-composer .mm-eyebrow{padding-right:65px;}
+#mumu-first-meeting .mm-composer h2{font-size:21px;}
+#mumu-first-meeting .mm-composer textarea{border-radius:0;border-width:0 0 1px;min-height:140px;padding:10px 0;background:transparent;caret-color:var(--mm-button);transition:border-color .2s,box-shadow .2s;}
+#mumu-first-meeting .mm-composer textarea:focus{outline:none;border-bottom-color:var(--mm-button);box-shadow:0 1px 0 var(--mm-button);}
+@media(forced-colors:active){#mumu-first-meeting .mm-composer textarea:focus{outline:2px solid Highlight;outline-offset:2px;}}
+#mumu-first-meeting .mm-composer .mm-actions{justify-content:flex-end;margin-top:18px;}
+#mumu-first-meeting .mm-composer .mm-note{font-size:11px;}
+#mumu-first-meeting .mm-fold-paper{position:absolute;top:11px;right:10px;padding:10px 12px;font-size:12px;background:transparent;color:var(--mm-sub);cursor:pointer;}
+#mumu-first-meeting [data-screen="sit"]{padding:8px 0;animation:mm-paper-open .5s ease-out both;}
+@keyframes mm-paper-open{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:420px){#mumu-first-meeting .mm-bench-action{left:calc(50% + 65px);width:82px;}#mumu-first-meeting .mm-composer{padding:24px 16px 18px;}#mumu-first-meeting .mm-composer h2{font-size:20px;}#mumu-first-meeting .mm-world[data-state="write"] .mm-content{padding:18px 12px;}}
+
+#mumu-first-meeting #mm-history-count{font-size:12px;color:var(--mm-sub);margin-left:8px;}
+#mumu-first-meeting .mm-history-privacy{font-size:11px;margin:0 0 18px;}
+#mumu-first-meeting .mm-history-empty{padding:18px 0;font-size:13px;}
+#mumu-first-meeting .mm-history-entry{border-bottom:1px solid var(--mm-line);padding:8px 0;}
+#mumu-first-meeting .mm-history-entry>summary{padding:12px 0;cursor:pointer;overflow-wrap:anywhere;line-height:1.7;font-size:14px;}
+#mumu-first-meeting .mm-history-date{display:block;font-size:11px;color:var(--mm-sub);margin-bottom:3px;}
+#mumu-first-meeting .mm-history-entry h3{font-size:12px;font-weight:500;color:var(--mm-sub);margin:18px 0 8px;}
+#mumu-first-meeting .mm-history-body{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--mm-paper);padding:15px;border-radius:10px;color:var(--mm-text);}
+#mumu-first-meeting .mm-delete-confirm{background:var(--mm-paper);border:1px solid var(--mm-line);padding:16px;border-radius:12px;margin-top:12px;}
+#mumu-first-meeting .mm-delete-confirm button{margin:12px 6px 0 0;}
+#mumu-first-meeting .mm-storage-error{margin:12px 40px;padding:14px;border:1px solid var(--mm-line);border-radius:10px;color:var(--mm-text);}
+@media(max-width:420px){#mumu-first-meeting .mm-letterbox{margin:8px 22px 18px;}#mumu-first-meeting .mm-storage-error{margin:12px 22px;}}
+
+/* Yanlai keeps old letters on the branch; reading never leaves the scene. */
+body.mm-reading-history{overflow:hidden;}
+#mumu-first-meeting .mm-bird-branch{position:absolute;left:calc(50% - 175px);top:156px;width:140px;height:64px;overflow:visible;pointer-events:none;transform:scaleX(-1);}
+#mumu-first-meeting .mm-branch-wood{fill:var(--mm-wood);}
+#mumu-first-meeting .mm-branch-twig{fill:none;stroke:var(--mm-wood);stroke-width:2;stroke-linecap:round;}
+#mumu-first-meeting .mm-branch-leaf{fill:var(--mm-leaf);}
+#mumu-first-meeting .mm-branch-leaf.mm-leaf-light{fill:var(--mm-leaf2);}
+#mumu-first-meeting .mm-yanlai{position:absolute;left:calc(50% - 174px);top:103px;width:94px;height:112px;z-index:9;background:transparent;color:var(--mm-text);padding:0;cursor:pointer;border-radius:20px;}
+#mumu-first-meeting .mm-yanlai:hover:not(:disabled){transform:none;}
+#mumu-first-meeting .mm-yanlai .mm-bird{scale:-1 1;position:absolute;width:75px;height:62px;top:27px;left:9px;overflow:visible;transform-origin:50% 85%;animation:mm-yanlai-rest 14s ease-in-out infinite;}
+#mumu-first-meeting .mm-yanlai-name{position:absolute;top:12px;left:28px;font-size:10px;color:var(--mm-sub);letter-spacing:2px;}
+#mumu-first-meeting .mm-yanlai .mm-place-label{font-size:11px;padding:4px 9px;bottom:-2px;}
+#mumu-first-meeting .mm-yanlai:hover .mm-bird{animation:none;transform:rotate(-7deg) translateY(-2px);}
+#mumu-first-meeting .mm-yanlai:focus-visible{outline:2px solid var(--mm-button);outline-offset:3px;}
+@keyframes mm-yanlai-rest{0%,38%,48%,100%{transform:rotate(0);}41%,45%{transform:rotate(-7deg);}72%,74%{transform:translateY(-2px);}73%{transform:translateY(0);}}
+#mumu-first-meeting dialog.mm-letterbox{position:fixed;inset:0;width:calc(100% - 32px);max-width:550px;max-height:82dvh;margin:auto;padding:26px 28px 20px;background:var(--mm-bg);color:var(--mm-text);border:1px solid var(--mm-line);border-radius:24px;box-shadow:0 24px 90px #142b2940;overflow:auto;overscroll-behavior:contain;text-align:left;}
+#mumu-first-meeting dialog.mm-letterbox::backdrop{background:#20352d55;backdrop-filter:blur(3px);}
+#mumu-first-meeting dialog.mm-letterbox[open]{animation:mm-old-letters-open .28s ease-out;}
+#mumu-first-meeting .mm-letterbox-header{display:flex;align-items:center;gap:14px;position:relative;padding-right:34px;}
+#mumu-first-meeting .mm-letterbox-header .mm-eyebrow{font-size:11px;margin-bottom:4px;}
+#mumu-first-meeting .mm-letterbox-header h2{font-size:26px;margin:0;}
+#mumu-first-meeting .mm-close-history{position:absolute;right:-12px;top:-10px;width:44px;height:44px;padding:0;font-size:26px;background:transparent;color:var(--mm-sub);cursor:pointer;}
+#mumu-first-meeting .mm-bird-delivery{position:relative;flex:none;width:78px;height:74px;}
+#mumu-first-meeting .mm-bird-delivery svg{width:78px;height:64px;overflow:visible;}
+#mumu-first-meeting dialog[open] .mm-bird-delivery{animation:mm-bring-letter .65s ease-out both;}
+#mumu-first-meeting .mm-carried-letter{position:absolute;left:0;top:28px;width:27px;height:20px;background:var(--mm-paper);border:1px solid var(--mm-wood);border-radius:2px;transform:rotate(-14deg);}
+#mumu-first-meeting .mm-carried-letter:after{content:"";position:absolute;top:-7px;left:4px;width:17px;height:17px;border-right:1px solid var(--mm-wood);border-bottom:1px solid var(--mm-wood);transform:rotate(45deg);}
+#mumu-first-meeting .mm-letterbox-intro{font-size:13px;margin:13px 0 20px;}
+#mumu-first-meeting .mm-letterbox-intro #mm-history-count{float:right;}
+#mumu-first-meeting .mm-history-entry{position:relative;background:var(--mm-paper);border:1px solid var(--mm-line);border-radius:5px 5px 14px 14px;padding:0 18px;margin:13px 0;box-shadow:0 3px 0 var(--mm-line);}
+#mumu-first-meeting .mm-history-entry>summary{list-style:none;padding:17px 24px 17px 28px;position:relative;}
+#mumu-first-meeting .mm-history-entry>summary::-webkit-details-marker{display:none;}
+#mumu-first-meeting .mm-history-entry>summary:before{content:"✉";position:absolute;left:0;top:22px;color:var(--mm-sub);font-size:19px;}
+#mumu-first-meeting .mm-history-entry>summary:after{content:"＋";position:absolute;right:0;top:24px;color:var(--mm-sub);}
+#mumu-first-meeting .mm-history-entry[open]>summary:after{content:"−";}
+#mumu-first-meeting .mm-history-entry .mm-history-body{padding:0 0 12px;background:transparent;}
+#mumu-first-meeting .mm-history-entry h3{padding-top:12px;border-top:1px solid var(--mm-line);margin-top:8px;}
+#mumu-first-meeting .mm-history-empty{text-align:center;padding:40px 20px;background:var(--mm-paper);border:1px dashed var(--mm-line);border-radius:16px;margin:16px 0;}
+#mumu-first-meeting .mm-letter-options{margin:4px 0 12px;text-align:right;}
+#mumu-first-meeting .mm-letter-options>summary{display:inline-block;list-style:none;cursor:pointer;min-width:44px;min-height:44px;padding:8px;font-size:20px;letter-spacing:2px;color:var(--mm-sub);}
+#mumu-first-meeting .mm-letter-options>summary::-webkit-details-marker{display:none;}
+#mumu-first-meeting .mm-letterbox-tools{display:flex;flex-wrap:wrap;gap:12px 22px;margin-top:24px;font-size:11px;color:var(--mm-sub);}
+#mumu-first-meeting .mm-letterbox-tools>details{flex:1;min-width:120px;}
+#mumu-first-meeting .mm-letterbox-tools summary{cursor:pointer;padding:10px 0;}
+#mumu-first-meeting .mm-letterbox-tools button{padding-left:0;text-align:left;}
+#mumu-first-meeting .mm-letterbox .mm-storage-error{margin:12px 0;}
+@keyframes mm-old-letters-open{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@keyframes mm-bring-letter{from{opacity:0;transform:translate(44px,-25px) rotate(-12deg);}to{opacity:1;transform:translate(0,0) rotate(0);}}
+@media(max-width:420px){#mumu-first-meeting dialog.mm-letterbox{width:calc(100% - 20px);padding:22px 18px 16px;max-height:86dvh;}#mumu-first-meeting .mm-yanlai{left:calc(50% - 154px);}#mumu-first-meeting .mm-bird-branch{left:calc(50% - 155px);width:120px;}}
