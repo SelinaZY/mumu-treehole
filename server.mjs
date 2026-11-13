@@ -6,6 +6,8 @@ import { resolve } from 'node:path';
 const publicDir = new URL('./public/', import.meta.url);
 const prompt = await readFile(new URL('./prompts/mumu.txt', import.meta.url), 'utf8');
 const reactionPrompt = await readFile(new URL('./prompts/reaction.txt', import.meta.url), 'utf8');
+const visitPrompt = await readFile(new URL('./prompts/visit.txt', import.meta.url), 'utf8');
+const visitDir = new URL('./private/visit/', import.meta.url);
 const reactionNames = ['quiet', 'bighead', 'sweep', 'steam'];
 const replyFormat = {
   type: 'json_schema', name: 'mumu_letter', strict: true,
@@ -19,6 +21,17 @@ const replyFormat = {
     required: ['reply', 'allow_playful', 'reaction'],
   },
 };
+const chatFormat = structuredClone(replyFormat);
+chatFormat.name = 'mumu_chat';
+chatFormat.schema.properties.activity = {type:'string', enum:['busy','listening']};
+chatFormat.schema.required.push('activity');
+const visitFiles = new Map([
+ ['/visit', ['index.html','text/html; charset=utf-8']],
+ ['/visit/', ['index.html','text/html; charset=utf-8']],
+ ['/visit/index.html', ['index.html','text/html; charset=utf-8']],
+ ['/visit/visit.css', ['visit.css','text/css; charset=utf-8']],
+ ['/visit/visit.js', ['visit.js','text/javascript; charset=utf-8']],
+]);
 const files = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
@@ -32,17 +45,32 @@ class RequestError extends Error {
   constructor(status, message) { super(message); this.status = status; }
 }
 
-async function readLetter(req) {
+async function readLetter(req, chat = false) {
   let size = 0;
   const chunks = [];
   for await (const chunk of req) {
     size += chunk.length;
-    if (size > 16384) throw new RequestError(413, '这封信太长了，请缩短到 2000 字符以内。');
+    if (size > (chat ? 131072 : 16384)) throw new RequestError(413, '这封信太长了，请缩短到 2000 字符以内。');
     chunks.push(chunk);
   }
   let body;
   try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')); }
   catch { throw new RequestError(400, '信件格式有误，请重新寄出。'); }
+  if (chat) {
+    const messages = body?.messages;
+    if (!Array.isArray(messages) || !messages.length || messages.length > 25 ||
+        !['busy','listening'].includes(body.activity) || (body.company !== undefined && !['apart','near','sharing','rest'].includes(body.company))) throw new RequestError(400, '聊天格式有误。');
+    let total = 0;
+    const clean = messages.map((m, i) => {
+      if (!m || !['user','assistant'].includes(m.role) || typeof m.content !== 'string' ||
+          !m.content.trim() || m.content.length > (m.role === 'user' ? 2000 : 8000) ||
+          (i && m.role === messages[i-1].role)) throw new RequestError(400, '聊天内容或顺序有误。');
+      total += m.content.length;
+      return {role:m.role,content:m.content.trim()};
+    });
+    if (total > 18000 || clean.at(-1).role !== 'user') throw new RequestError(400, '聊天太长或缺少新的话，请开启一次新聊天。');
+    return {messages:clean,activity:body.activity,company:body.company||'apart'};
+  }
   if (typeof body?.letter !== 'string' || !body.letter.trim() || body.letter.length > 2000) {
     throw new RequestError(400, '请写下 1–2000 字符的内容。');
   }
@@ -68,7 +96,8 @@ export function createApp({ apiKey = '', model = '', demo = false, fetchImpl = f
       const hosts = new Set([`127.0.0.1:${port}`, `localhost:${port}`]);
       if (!hosts.has(req.headers.host)) return send(403, { error: '仅允许从本机访问。' });
       const url = new URL(req.url, `http://${req.headers.host}`);
-      if (url.pathname === '/api/reply') {
+      const chat = url.pathname === '/api/chat';
+      if (url.pathname === '/api/reply' || chat) {
         if (req.method !== 'POST') return send(405, { error: '请使用寄信按钮提交。' });
         if (demo) return send(403, { error: '演示模式不会调用 API。' });
         const origin = req.headers.origin;
@@ -86,16 +115,18 @@ export function createApp({ apiKey = '', model = '', demo = false, fetchImpl = f
         res.on('close', cancel);
         let timer;
         try {
-          const letter = await readLetter(req);
+          const letter = await readLetter(req, chat);
           timer = setTimeout(() => abort.abort(), timeoutMs);
           const upstream = await fetchImpl('https://api.openai.com/v1/responses', {
             method: 'POST',
             headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
               model,
-              instructions: `${prompt}\n\n${reactionPrompt}`,
-              input: [{ role: 'user', content: letter }],
-              text: { format: replyFormat },
+              instructions: chat
+                ? `${prompt.replace('每次只收到当前信件，没有历史信件或长期记忆。', '你会收到本次聊天最近的一段对话，没有跨次聊天的长期记忆。')}\n\n${reactionPrompt}\n\n${visitPrompt}\n当前画面状态：${letter.activity === 'busy' ? '木木在试着往罐子里塞饼干' : '木木已放下饼干，正在听用户说话'}。相处状态：${({apart:'各自在窗边和长椅',near:'木木已到树下，和小香菇并排坐着',sharing:'木木和小香菇刚分了一块饼干，一人一半',rest:'两个人刚安静靠了一会儿'})[letter.company]}。这是画面动作，不是用户说的话；可以自然理解它，不必主动复述或追问。`
+                : `${prompt}\n\n${reactionPrompt}`,
+              input: chat ? letter.messages : [{ role: 'user', content: letter }],
+              text: { format: chat ? chatFormat : replyFormat },
               max_output_tokens: 2000,
               store: false,
             }),
@@ -129,7 +160,7 @@ export function createApp({ apiKey = '', model = '', demo = false, fetchImpl = f
           // Missing, unexpected, or non-playful decisions always stay quiet.
           const reaction = result.allow_playful === true && reactionNames.includes(result.reaction)
             ? result.reaction : 'quiet';
-          send(200, { reply: result.reply.trim(), reaction });
+          send(200, { reply: result.reply.trim(), reaction, ...(chat ? {activity: result.activity === 'busy' && reaction === 'quiet' ? 'busy' : 'listening'} : {}) });
         } catch (err) {
           if (err instanceof RequestError) send(err.status, { error: err.message });
           else if (abort.signal.aborted) send(504, { error: '回信等得有点久，请稍后再试。' });
@@ -148,9 +179,10 @@ export function createApp({ apiKey = '', model = '', demo = false, fetchImpl = f
         res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8' });
         return res.end(req.method === 'HEAD' ? undefined : `window.MUMU_CONFIG = Object.freeze(${JSON.stringify(config)});`);
       }
-      const asset = files.get(url.pathname);
+      const privateAsset = !demo && visitFiles.get(url.pathname);
+      const asset = privateAsset || files.get(url.pathname);
       if (!asset) return send(404, { error: '这里没有这份文件。' });
-      const content = await readFile(new URL(asset[0], publicDir));
+      const content = await readFile(new URL(asset[0], privateAsset ? visitDir : publicDir));
       res.writeHead(200, { 'Content-Type': asset[1] });
       res.end(req.method === 'HEAD' ? undefined : content);
     } catch {

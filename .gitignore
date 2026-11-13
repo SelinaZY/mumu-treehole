@@ -5,3 +5,6 @@ node_modules/
 .DS_Store
 *.log
 coverage/
+
+# Local exploratory mockups; the accepted experience lives in private/visit/.
+prototypes/
