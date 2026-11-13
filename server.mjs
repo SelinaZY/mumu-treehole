@@ -7,7 +7,6 @@ const publicDir = new URL('./public/', import.meta.url);
 const prompt = await readFile(new URL('./prompts/mumu.txt', import.meta.url), 'utf8');
 const reactionPrompt = await readFile(new URL('./prompts/reaction.txt', import.meta.url), 'utf8');
 const visitPrompt = await readFile(new URL('./prompts/visit.txt', import.meta.url), 'utf8');
-const visitDir = new URL('./private/visit/', import.meta.url);
 const reactionNames = ['quiet', 'bighead', 'sweep', 'steam'];
 const replyFormat = {
   type: 'json_schema', name: 'mumu_letter', strict: true,
@@ -25,16 +24,13 @@ const chatFormat = structuredClone(replyFormat);
 chatFormat.name = 'mumu_chat';
 chatFormat.schema.properties.activity = {type:'string', enum:['busy','listening']};
 chatFormat.schema.required.push('activity');
-const visitFiles = new Map([
- ['/visit', ['index.html','text/html; charset=utf-8']],
- ['/visit/', ['index.html','text/html; charset=utf-8']],
- ['/visit/index.html', ['index.html','text/html; charset=utf-8']],
- ['/visit/visit.css', ['visit.css','text/css; charset=utf-8']],
- ['/visit/visit.js', ['visit.js','text/javascript; charset=utf-8']],
-]);
 const files = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
+  ['/letters.html', ['letters.html', 'text/html; charset=utf-8']],
+  ['/chat.css', ['chat.css', 'text/css; charset=utf-8']],
+  ['/chat.js', ['chat.js', 'text/javascript; charset=utf-8']],
+  ['/demo-chat.js', ['demo-chat.js', 'text/javascript; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/reactions.js', ['reactions.js', 'text/javascript; charset=utf-8']],
@@ -179,10 +175,12 @@ export function createApp({ apiKey = '', model = '', demo = false, fetchImpl = f
         res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8' });
         return res.end(req.method === 'HEAD' ? undefined : `window.MUMU_CONFIG = Object.freeze(${JSON.stringify(config)});`);
       }
-      const privateAsset = !demo && visitFiles.get(url.pathname);
-      const asset = privateAsset || files.get(url.pathname);
+      if (['/visit', '/visit/', '/visit/index.html'].includes(url.pathname)) {
+        res.writeHead(302, {Location: '/'}); return res.end();
+      }
+      const asset = files.get(url.pathname);
       if (!asset) return send(404, { error: '这里没有这份文件。' });
-      const content = await readFile(new URL(asset[0], privateAsset ? visitDir : publicDir));
+      const content = await readFile(new URL(asset[0], publicDir));
       res.writeHead(200, { 'Content-Type': asset[1] });
       res.end(req.method === 'HEAD' ? undefined : content);
     } catch {

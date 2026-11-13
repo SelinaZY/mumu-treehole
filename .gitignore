@@ -6,5 +6,5 @@ node_modules/
 *.log
 coverage/
 
-# Local exploratory mockups; the accepted experience lives in private/visit/.
+# Local exploratory mockups; the accepted experience lives in public/.
 prototypes/
